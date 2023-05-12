@@ -55,8 +55,21 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomeApp extends StatelessWidget {
+class MyHomeApp extends StatefulWidget {
   const MyHomeApp({super.key});
+
+  @override
+  _MyHomeAppState createState() => _MyHomeAppState();
+}
+
+class _MyHomeAppState extends State<MyHomeApp> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +90,7 @@ class MyHomeApp extends StatelessWidget {
             ),
             Image.asset(
               'assets/images/arezImage.png',
-              width: 200,
+              width: 150,
             ),
             const Text('Welcome Back!', style: TextStyle(color: Colors.white)),
             const SizedBox(
@@ -139,6 +152,25 @@ class MyHomeApp extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.menu_book),
+            label: 'Appointment',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.photo_camera),
+            label: 'Photos',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
       ),
     );
   }
