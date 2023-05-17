@@ -1,3 +1,6 @@
+import 'screens/appointment_screen.dart';
+import 'screens/camera_screen.dart';
+import 'screens/home_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -48,7 +51,11 @@ class MyHomeApp extends StatefulWidget {
 
 class _MyHomeAppState extends State<MyHomeApp> {
   int _selectedIndex = 0;
-
+  static final List<Widget> _widgetOptions = <Widget>[
+    HomeScreen(),
+    AppointmentScreen(),
+    CameraScreen(),
+  ];
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -59,16 +66,7 @@ class _MyHomeAppState extends State<MyHomeApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildWelcomeBackSection(),
-            _buildButtonRow(),
-            const Text('Appointments'),
-            _buildAppointmentList(),
-          ],
-        ),
-      ),
+      body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -82,70 +80,12 @@ class _MyHomeAppState extends State<MyHomeApp> {
           icon: const Icon(Icons.person),
           onPressed: () {},
         ),
-        actions: const [Text('Report Bug')],
-      ),
-    );
-  }
-
-  Widget _buildWelcomeBackSection() {
-    return const Column(
-      children: [
-        SizedBox(height: 10),
-        Image(width: 200, image: AssetImage('assets/images/arezImage.png')),
-        SizedBox(height: 10),
-        Text('Welcome Back!'),
-        SizedBox(height: 10),
-      ],
-    );
-  }
-
-  Widget _buildButtonRow() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.phone),
-              label: const Text('Call'),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.map),
-              label: const Text('Route'),
-            ),
+        actions: const [
+          TextButton(
+            onPressed: null,
+            child: Text('Report Bug'),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAppointmentList() {
-    return Expanded(
-      child: ListView.builder(
-        itemCount: 40,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ListTile(
-              leading: const Icon(Icons.calendar_today),
-              title: Text('Appointment ${index + 1}'),
-              subtitle: const Text('Date: 12/12/2021'),
-              trailing: const Icon(Icons.more_vert),
-              tileColor: index % 2 == 0
-                  ? Colors.deepPurple.shade100
-                  : Colors.deepPurple.shade200,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-            ),
-          );
-        },
       ),
     );
   }
@@ -158,12 +98,12 @@ class _MyHomeAppState extends State<MyHomeApp> {
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.business),
-          label: 'Business',
+          icon: Icon(Icons.calendar_today),
+          label: 'Appointment',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.school),
-          label: 'School',
+          icon: Icon(Icons.photo_camera),
+          label: 'Photo',
         ),
       ],
       currentIndex: _selectedIndex,
