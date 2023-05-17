@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'operation_sheet.dart';
 
 class AppointmentScreen extends StatefulWidget {
@@ -8,127 +9,149 @@ class AppointmentScreen extends StatefulWidget {
 }
 
 class _AppointmentScreenState extends State<AppointmentScreen> {
-  DateTime today = DateTime.now();
-  String? selectedHour;
-  late ScrollController _scrollController;
-  List<String> hours = List<String>.generate(11, (i) => '${i + 8}:00')
-    ..add('18:30');
+  DateTime selectedDay = DateTime.now();
+  String selectedHour = '';
 
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent *
-            (today.day / DateTime(today.year, today.month + 1, 0).day),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOut,
-      );
-    });
-  }
+  final List<String> hours = List.generate(
+      11, (index) => (8 + index).toString().padLeft(2, '0') + ':00');
 
   @override
   Widget build(BuildContext context) {
-    int daysInMonth = DateTime(today.year, today.month + 1, 0).day;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Appointment Screen'),
-      ),
       body: Column(
-        children: <Widget>[
-          SizedBox(height: 10),
-          Container(
-            height: 60,
-            child: ListView.builder(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              itemCount: daysInMonth,
-              itemBuilder: (context, index) {
-                DateTime thisDay = DateTime(today.year, today.month, index + 1);
-                bool isSelected = thisDay.day ==
-                    today.day; // only today is selected by default
-
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      today = thisDay;
-                    });
-                  },
-                  child: Container(
-                    width: 70,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: isSelected ? Colors.blue : Colors.grey,
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    margin: EdgeInsets.all(5),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(DateFormat('d').format(thisDay)), // day number
-                          Text(DateFormat('EEE').format(thisDay)), // day name
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Expanded(
-            child: GridView.builder(
-              itemCount: hours.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 5.0,
-                mainAxisSpacing: 5.0,
-              ),
-              itemBuilder: (BuildContext context, int index) {
-                return InkWell(
-                  onTap: () {
-                    setState(() {
-                      selectedHour = hours[index];
-                    });
-                    _showOperationBottomSheet(context);
-                  },
-                  child: GridTile(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: hours[index] == selectedHour
-                              ? Colors.blue
-                              : Colors.grey,
-                        ),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Center(child: Text(hours[index])),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
+        children: [
+          _buildDaySelector(),
+          _buildHourSelector(),
         ],
       ),
     );
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
+  Widget _buildDaySelector() {
+    return SizedBox(
+      height: 100,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: DateTime.now().add(const Duration(days: 30)).day,
+        itemBuilder: (context, index) {
+          DateTime day = DateTime.now().add(Duration(days: index));
+          bool isSelected = selectedDay.day == day.day &&
+              selectedDay.month == day.month &&
+              selectedDay.year == day.year;
+          return _DayItem(
+            day: day,
+            isSelected: isSelected,
+            onSelect: (selectedDay) {
+              setState(() {
+                this.selectedDay = selectedDay;
+              });
+            },
+          );
+        },
+      ),
+    );
   }
 
-  void _showOperationBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return OperationBottomSheet();
-      },
+  Widget _buildHourSelector() {
+    return Expanded(
+      child: GridView.count(
+        crossAxisCount: 3,
+        children: List.generate(hours.length, (index) {
+          return _HourItem(
+            hour: hours[index],
+            isSelected: selectedHour == hours[index],
+            onSelect: (selectedHour) {
+              setState(() {
+                this.selectedHour = selectedHour;
+              });
+              showModalBottomSheet(
+                context: context,
+                builder: (context) {
+                  return OperationBottomSheet();
+                },
+              );
+            },
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class _DayItem extends StatelessWidget {
+  final DateTime day;
+  final bool isSelected;
+  final ValueChanged<DateTime> onSelect;
+
+  _DayItem({
+    required this.day,
+    required this.isSelected,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onSelect(day),
+      child: Container(
+        margin: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue : Colors.white,
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              DateFormat('dd').format(day),
+              style: TextStyle(
+                  fontSize: 20,
+                  color: isSelected ? Colors.white : Colors.black),
+            ),
+            Text(
+              DateFormat('EEE').format(day),
+              style: TextStyle(
+                  fontSize: 16,
+                  color: isSelected ? Colors.white : Colors.black),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HourItem extends StatelessWidget {
+  final String hour;
+  final bool isSelected;
+  final ValueChanged<String> onSelect;
+
+  _HourItem({
+    required this.hour,
+    required this.isSelected,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onSelect(hour),
+      child: Container(
+        margin: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue : Colors.white,
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Center(
+          child: Text(
+            hour,
+            style: TextStyle(
+                fontSize: 20, color: isSelected ? Colors.white : Colors.black),
+          ),
+        ),
+      ),
     );
   }
 }
