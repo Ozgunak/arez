@@ -1,16 +1,9 @@
-# arez
+# AR&EZ
 
-A new Flutter project.
+![Simulator Screenshot - iPhone 14 - 2023-07-25 at 20 29 08](https://github.com/Ozgunak/arez/assets/64470656/11619958-2b0a-463f-9a01-0c84d0d6b3ba)
 
-## Getting Started
+## About
 
-This project is a starting point for a Flutter application.
+This project is a replica Flutter version of my AR&EZ App Store application.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
